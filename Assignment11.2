@@ -1,0 +1,54 @@
+# Session 11: Assignment 2
+
+In this assignment students have to compress racoon grey scale image into 5 clusters. In
+the end, visualize both raw and compressed image and look for quality difference.
+The raw image is available in spicy.misc package with the name face.
+
+Hint:
+
+import numpy as np
+from sklearn import cluster, datasets
+from scipy import misc
+
+import time
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.misc import face
+from sklearn.feature_extraction import image
+from sklearn.cluster import spectral_clustering
+from skimage.transform import resize
+
+
+beta = 5
+#taking cluster as 5
+clusters_no = 5
+eps = 1e-6
+
+#taking gray scale
+face = face(gray=True)
+face = resize(face, (face.shape[0] /8, face.shape[1] /8))
+
+graph = image.img_to_graph(face)
+graph.data = np.exp(-beta * graph.data / graph.data.std()) + eps
+
+plt.gray()
+plt.imshow(face)
+plt.show()
+
+for assign_labels in ('kmeans', 'discretize'):
+    t0 = time.time()
+    labels = spectral_clustering(graph, n_clusters=no_of_clusters,
+                                 assign_labels=assign_labels, random_state=1)
+    t1 = time.time()
+    labels = labels.reshape(face.shape)
+
+    plt.figure(figsize=(5, 5))
+    plt.imshow(face, cmap=plt.cm.gray)
+    for l in range(no_of_clusters):
+        plt.contour(labels == l)
+    plt.xticks(())
+    plt.yticks(())
+    title = 'Spectral clustering: %s, %.2fs' % (assign_labels, (t1 - t0))
+    print(title)
+    plt.title(title)
+plt.show()
